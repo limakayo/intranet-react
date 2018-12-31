@@ -1,8 +1,10 @@
-import React, { Component } from 'react'
-import Content from '../components/layout/Content'
-import ClientesFormComponent from '../components/ClientesFormComponent'
-import { observer } from 'mobx-react'
-import clienteStore from '../stores/ClienteStore'
+import React, { Component } from 'react';
+import Content from '../components/layout/Content';
+import ClientesForm from '../components/clientes/ClientesForm';
+
+import { observer } from 'mobx-react';
+
+import clienteStore from '../stores/ClienteStore';
 
 const ClientesFormContainer = observer(class ClientesFormContainer extends Component {
 
@@ -11,6 +13,7 @@ const ClientesFormContainer = observer(class ClientesFormContainer extends Compo
     this.state = {
       title: 'Cadastrar Cliente',
     }
+    clienteStore.resetCliente()
     this.addContato = this.addContato.bind(this);
     this.removeContato = this.removeContato.bind(this);
     this.changeContato = this.changeContato.bind(this);
@@ -21,12 +24,13 @@ const ClientesFormContainer = observer(class ClientesFormContainer extends Compo
   }
 
   componentDidMount() {
-    clienteStore.resetCliente()
     this.addContato()
     const id = this.props.match.params.id
     if (id !== undefined) {
       this.setState({ title: 'Editar Cliente'})
       clienteStore.getCliente(id)
+    } else {
+      clienteStore.setLoaded()
     }
   }
 
@@ -66,17 +70,22 @@ const ClientesFormContainer = observer(class ClientesFormContainer extends Compo
       let value = event.target.value.slice(0,5) + event.target.value.slice(6,9)
       clienteStore.cep(value)
     }
-    if (name === 'cnpj') {
+    if (name === 'cnpj' && event.target.value.length === 18) {
       let value = event.target.value.replace(/[^\w\s]/gi, '')
       clienteStore.cnpj(value)
     }
   }
 
   handleSubmit() {
-    if (clienteStore.cliente._id === undefined)
-      clienteStore.postCliente()
-    else
-      clienteStore.putCliente()
+    if (clienteStore.cliente.nome === '') {
+      clienteStore.error = true
+    } else {
+      clienteStore.error = false
+      if (clienteStore.cliente._id === undefined)
+        clienteStore.postCliente()
+      else
+        clienteStore.putCliente()
+    }
   }
 
   handleDelete() {
@@ -89,7 +98,10 @@ const ClientesFormContainer = observer(class ClientesFormContainer extends Compo
 				<Content
           action="back"
           title={this.state.title}>
-  				<ClientesFormComponent
+  				<ClientesForm
+            isLoaded={clienteStore.isLoaded}
+            loading={clienteStore.loading}
+            error={clienteStore.error}
             cliente={clienteStore.cliente}
             contatos={clienteStore.contatos}
             addContato={this.addContato}

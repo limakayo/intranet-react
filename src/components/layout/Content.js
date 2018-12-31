@@ -7,22 +7,31 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 import Icon from '@material-ui/core/Icon';
 import Menu from './Menu';
 import history from '../../utils/history';
 
+import Search from '../Search';
+import Message from '../Message';
+
+import uiStore from '../../stores/UiStore'
+
 const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    minHeight: 430,
+    height: '100%',
     zIndex: 1,
-    overflow: 'hidden',
     display: 'flex',
+    position: 'relative',
     width: '100%',
+  },
+  flex: {
+    flexGrow: 1
   },
   appBar: {
     marginLeft: drawerWidth,
@@ -30,6 +39,9 @@ const styles = theme => ({
       width: `calc(100% - ${drawerWidth}px)`,
     },
   },
+  removeBoxShadow: {
+    boxShadow: 'none'
+  }, 
   toolbar: {
     textAlign: 'center',
     padding: 20,
@@ -72,7 +84,15 @@ class Content extends Component {
   };
 
   render() {
-    const { classes, theme, title, children, action } = this.props;
+    const { 
+      classes, 
+      theme, 
+      title, 
+      children, 
+      action 
+    } = this.props;
+
+    const { handleOpenSearch } = uiStore
 
     const drawer = (
       <div>
@@ -90,7 +110,10 @@ class Content extends Component {
 
     return (
       <div className={classes.root}>
-        <AppBar className={classes.appBar}>
+        <AppBar className={
+          `${classes.appBar} 
+          ${history.location.pathname === '/ordens' ? classes.removeBoxShadow : null}`
+        }>
           <Toolbar>
             <IconButton
               color="inherit"
@@ -100,9 +123,15 @@ class Content extends Component {
             >
               {action === 'back' ? <Icon>arrow_back</Icon> : <Icon>menu</Icon>}
             </IconButton>
-            <Typography variant="title" color="inherit" noWrap>
+            <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               {title}
             </Typography>
+            <IconButton
+              color="inherit"
+              onClick={handleOpenSearch}
+            >
+              <SearchIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <Hidden mdUp>
@@ -135,6 +164,9 @@ class Content extends Component {
         <main className={classes.content}>
           {children}
         </main>
+
+        <Search />
+        <Message />
       </div>
     );
   }

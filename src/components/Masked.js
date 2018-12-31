@@ -1,7 +1,9 @@
-import React from 'react'
-import MaskedInput from 'react-text-mask'
+import React from 'react';
+import MaskedInput from 'react-text-mask';
 
-const Masked = (props) => {
+import { observer } from 'mobx-react';
+
+const Masked = observer(function Masked(props) {
 	const divProps = Object.assign({}, props)
 	delete divProps.inputRef
 
@@ -20,6 +22,6 @@ const Masked = (props) => {
       guide={props.guide}
     />
   )
-}
+})
 
 export default Masked
